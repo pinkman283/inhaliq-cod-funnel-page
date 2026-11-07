@@ -318,24 +318,25 @@ export async function getFunnelCatalog(): Promise<FunnelCatalogData> {
 
       if (dispCat && Array.isArray(dispCat.sub_categories) && dispCat.sub_categories.length > 0) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        disposableSubcategories = dispCat.sub_categories.map((sub: any) => ({
-          id: Number(sub.id),
-          name: String(sub.name || sub.sub_category_name || "Subcategory"),
-          slug: String(sub.slug),
-        }));
+        disposableSubcategories = dispCat.sub_categories
+          .filter((sub: any) => !/ieet/i.test(sub.name || sub.slug || "") && Number(sub.id) !== 8)
+          .map((sub: any) => ({
+            id: Number(sub.id),
+            name: String(sub.name || sub.sub_category_name || "Subcategory"),
+            slug: String(sub.slug),
+          }));
       }
     }
   } catch (err) {
     console.warn("[getFunnelCatalog] Could not fetch nav-menu, using standard disposable subcategories:", err);
   }
 
-  // Fallback subcategories if nav-menu was unreachable
+  // Fallback subcategories if nav-menu was unreachable (strictly excluding IEET)
   if (disposableSubcategories.length === 0) {
     disposableSubcategories = [
       { id: 1, name: "Flyto", slug: "flyto-2" },
       { id: 9, name: "D-Breath", slug: "d-breath" },
       { id: 7, name: "Voltbar", slug: "voltbar" },
-      { id: 8, name: "IEET", slug: "ieet" },
     ];
   }
 
@@ -359,7 +360,7 @@ export async function getFunnelCatalog(): Promise<FunnelCatalogData> {
 
       const subProducts: SanitizedProduct[] = rawList
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .filter((p: any) => p && (p.status === undefined || p.status === 1 || p.status === "1"))
+        .filter((p: any) => p && (p.status === undefined || p.status === 1 || p.status === "1") && !/ieet/i.test(p.name || p.slug || ""))
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .map((p: any) => normalizeProduct(p, subContext));
 

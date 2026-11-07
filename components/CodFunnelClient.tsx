@@ -433,7 +433,7 @@ export function CodFunnelClient({
     <div className="w-full min-h-screen bg-slate-50 dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 transition-colors duration-250 pb-20 sm:pb-12">
       {/* 1. PROFESSIONAL BRAND HEADER WITH INTEGRATED THEME SWITCH */}
       <header className="sticky top-0 z-50 bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 shadow-xs">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-15 flex items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-15 flex items-center justify-between gap-3">
           {/* Brand Identity */}
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-700 dark:bg-emerald-600 flex items-center justify-center text-white shadow-xs">
@@ -466,7 +466,7 @@ export function CodFunnelClient({
       </header>
 
       {/* MAIN CONTAINER */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-10 sm:space-y-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-10 sm:space-y-12">
         <AnimatePresence mode="wait">
           {orderSuccess ? (
             /* ORDER SUCCESS CONFIRMATION SCREEN */
@@ -734,7 +734,7 @@ export function CodFunnelClient({
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3">
                   {displayedProducts.map((product) => {
                     const isSelected = selectedProduct?.id === product.id;
 
@@ -742,74 +742,77 @@ export function CodFunnelClient({
                       <div
                         key={product.id}
                         onClick={() => handleSelectProduct(product)}
-                        className={`group relative rounded-2xl p-4 cursor-pointer transition-all duration-200 border-2 flex flex-col justify-between ${
+                        className={`group relative rounded-xl p-2.5 sm:p-3 cursor-pointer transition-all duration-200 border flex flex-col justify-between ${
                           isSelected
-                            ? "bg-white dark:bg-[#131c2e] border-emerald-600 dark:border-emerald-500 shadow-md ring-2 ring-emerald-500/15"
+                            ? "bg-white dark:bg-[#131c2e] border-emerald-600 dark:border-emerald-500 shadow-md ring-2 ring-emerald-500/20"
                             : "bg-white dark:bg-[#111827] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs"
                         }`}
                       >
                         {/* Top: Selection Indicator & Stock status */}
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center justify-between mb-2">
                           <div
-                            className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors ${
+                            className={`w-4 h-4 rounded-full flex items-center justify-center border transition-colors ${
                               isSelected
                                 ? "border-emerald-600 bg-emerald-600 text-white"
                                 : "border-slate-300 dark:border-slate-600 bg-transparent"
                             }`}
                           >
-                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                            {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                           </div>
 
-                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium text-[11px] flex items-center gap-1.5">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             স্টক রয়েছে
                           </span>
                         </div>
 
                         {/* Product Image */}
-                        <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800/80 mb-3 flex items-center justify-center border border-slate-100 dark:border-slate-800">
+                        <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800/80 mb-2 flex items-center justify-center border border-slate-100 dark:border-slate-800">
                           <Image
                             src={product.image}
                             alt={product.name}
                             fill
                             unoptimized
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                            className="object-cover transition-transform duration-300 group-hover:scale-103"
+                            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                             loading="eager"
                           />
                         </div>
 
                         {/* Title & Specs */}
-                        <div className="space-y-1 mb-3">
+                        <div className="space-y-0.5 mb-2">
                           {product.categoryName && (
-                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+                            <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
                               {product.categoryName}
                             </span>
                           )}
-                          <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base line-clamp-1">
+                          <h3
+                            className="font-bold text-slate-900 dark:text-white text-xs leading-snug line-clamp-2 min-h-[2rem]"
+                            title={product.name}
+                          >
                             {product.name}
                           </h3>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1 leading-normal">
                             {product.shortSpecs}
                           </p>
                         </div>
 
-                        {/* Price & Selection Button (No crossed out or fake discounts) */}
-                        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                        {/* Price & Selection Button */}
+                        <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-1">
                           <div>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 block">মূল্য</span>
-                            <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 block leading-none">মূল্য</span>
+                            <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                               {formatCurrency(product.offerPrice)}
                             </span>
                           </div>
                           <span
-                            className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                            className={`text-[10px] sm:text-[11px] font-semibold px-2 py-1 rounded-md transition-colors ${
                               isSelected
                                 ? "bg-emerald-700 text-white"
                                 : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 group-hover:bg-slate-200 dark:group-hover:bg-slate-700"
                             }`}
                           >
-                            {isSelected ? "নির্বাচিত ✓" : "সিলেক্ট করুন"}
+                            {isSelected ? "নির্বাচিত ✓" : "সিলেক্ট"}
                           </span>
                         </div>
                       </div>
@@ -1334,7 +1337,7 @@ export function CodFunnelClient({
       </AnimatePresence>
 
       {/* 7. CLEAN PROFESSIONAL FOOTER */}
-      <footer className="max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-6 text-center border-t border-slate-200 dark:border-slate-800/80 mt-12 space-y-2 text-xs text-slate-500 dark:text-slate-400">
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-6 text-center border-t border-slate-200 dark:border-slate-800/80 mt-12 space-y-2 text-xs text-slate-500 dark:text-slate-400">
         <p>© {new Date().getFullYear()} Compact Store. সর্বস্বত্ব সংরক্ষিত।</p>
         <p className="text-[11px] text-slate-400 dark:text-slate-500">
           সারা বাংলাদেশে ১০০% ক্যাশ অন ডেলিভারি এবং জেনুইন কোয়ালিটি সেবা।
