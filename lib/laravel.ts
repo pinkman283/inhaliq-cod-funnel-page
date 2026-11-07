@@ -208,8 +208,8 @@ export function normalizeProduct(
  * Standard BD shipping area defaults when unconfigured in backend
  */
 export const DEFAULT_SHIPPING_AREAS: ShippingArea[] = [
-  { id: "1", name: "ঢাকার ভেতরে (Inside Dhaka)", amount: 60 },
-  { id: "2", name: "ঢাকার বাইরে (Outside Dhaka)", amount: 120 },
+  { id: "11", name: "Inside Dhaka", amount: 60 },
+  { id: "13", name: "Outside Dhaka", amount: 120 },
 ];
 
 /**
@@ -439,17 +439,19 @@ export async function getFunnelProducts(): Promise<SanitizedProduct[]> {
 }
 
 /**
- * Fetches standardized shipping charges dynamically from Laravel API
+ * Fetches standardized shipping charges dynamically from Laravel API (Strictly Inside Dhaka and Outside Dhaka)
  */
 export async function getFunnelShippingCharges(): Promise<ShippingArea[]> {
   const res = await apiGetShippingCharges();
 
   if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-    return res.data.map((item: LaravelShippingCharge) => ({
-      id: String(item.id),
-      name: sanitizeText(item.name || "Delivery Zone"),
-      amount: Number(item.amount || 60),
-    }));
+    return res.data
+      .filter((item: LaravelShippingCharge) => !/near.*dhaka/i.test(item.name || ""))
+      .map((item: LaravelShippingCharge) => ({
+        id: String(item.id),
+        name: sanitizeText(item.name || "Delivery Zone"),
+        amount: Number(item.amount || 60),
+      }));
   }
 
   return DEFAULT_SHIPPING_AREAS;

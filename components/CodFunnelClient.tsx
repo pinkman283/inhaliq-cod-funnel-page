@@ -99,10 +99,13 @@ export function CodFunnelClient({
   const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
 
-  // Default shipping area
-  const [selectedAreaId, setSelectedAreaId] = useState<string>(() => {
-    return shippingAreas.length > 0 ? String(shippingAreas[0].id) : "1";
-  });
+  // Strictly filter shipping areas to Inside Dhaka and Outside Dhaka only (excluding Near Dhaka)
+  const activeShippingAreas = useMemo(() => {
+    return shippingAreas.filter((a) => !/near.*dhaka/i.test(a.name));
+  }, [shippingAreas]);
+
+  // Default shipping area (initially none selected — customer must choose)
+  const [selectedAreaId, setSelectedAreaId] = useState<string>("");
 
   // Form Fields
   const [name, setName] = useState<string>("");
@@ -185,11 +188,11 @@ export function CodFunnelClient({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Selected Shipping Area details
+  // Selected Shipping Area details (null if customer has not chosen an area yet)
   const activeShippingArea = useMemo(() => {
-    const area = shippingAreas.find((a) => String(a.id) === selectedAreaId);
-    return area || { id: "1", name: "ঢাকার ভেতরে (Inside Dhaka)", amount: 60 };
-  }, [shippingAreas, selectedAreaId]);
+    if (!selectedAreaId) return null;
+    return activeShippingAreas.find((a) => String(a.id) === selectedAreaId) || null;
+  }, [activeShippingAreas, selectedAreaId]);
 
   // Variant-Aware Unit Price (Phase 4)
   const unitPrice = useMemo(() => {
@@ -202,6 +205,10 @@ export function CodFunnelClient({
   // Live Dynamic Price Calculation with Backend /checkout/calculate (Phase 5)
   useEffect(() => {
     if (!selectedProduct) return;
+    if (!selectedAreaId) {
+      setBackendCalculation(null);
+      return;
+    }
 
     let isMounted = true;
     const timer = setTimeout(async () => {
@@ -262,7 +269,7 @@ export function CodFunnelClient({
 
   // Genuine Subtotal, Shipping, Discount, and Total (strictly honoring backend calculation)
   const subtotal = backendCalculation?.subtotal ?? (unitPrice * quantity);
-  const shippingCost = backendCalculation?.shipping_fee ?? activeShippingArea.amount;
+  const shippingCost = backendCalculation?.shipping_fee ?? (activeShippingArea ? activeShippingArea.amount : 0);
   const discountAmount = backendCalculation?.discount ?? 0;
   const totalPayable = backendCalculation?.total ?? (subtotal + shippingCost - discountAmount);
 
@@ -337,6 +344,15 @@ export function CodFunnelClient({
       return;
     }
 
+    if (!selectedAreaId) {
+      setErrorMessage("অনুগ্রহ করে ডেলিভারি এলাকা নির্বাচন করুন (ঢাকার ভেতরে বা বাইরে)।");
+      const areaEl = document.getElementById("delivery-area-selector");
+      if (areaEl) {
+        areaEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
     isSubmittingRef.current = true;
     setIsSubmitting(true);
 
@@ -397,7 +413,7 @@ export function CodFunnelClient({
         name: name.trim(),
         phone: phone.trim(),
         address: address.trim(),
-        areaName: activeShippingArea.name,
+        areaName: activeShippingArea?.name || (selectedAreaId === "11" ? "Inside Dhaka" : "Outside Dhaka"),
       });
 
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -941,21 +957,33 @@ export function CodFunnelClient({
                         </div>
                       </div>
 
-                      {/* Delivery Zone Selection (Interactive Cards) */}
-                      <div className="space-y-2">
-                        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                          ডেলিভারি এলাকা নির্বাচন করুন *
-                        </label>
+                      {/* Delivery Zone Selection (Interactive Cards - Mandatory, defaults to none) */}
+                      <div id="delivery-area-selector" className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            ডেলিভারি এলাকা নির্বাচন করুন *
+                          </label>
+                          {!selectedAreaId && (
+                            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                              (বাধ্যতামূলক — নির্বাচন করুন)
+                            </span>
+                          )}
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                          {shippingAreas.map((area) => {
+                          {activeShippingAreas.map((area) => {
                             const isAreaActive = selectedAreaId === String(area.id);
                             return (
                               <div
                                 key={area.id}
-                                onClick={() => setSelectedAreaId(String(area.id))}
+                                onClick={() => {
+                                  setSelectedAreaId(String(area.id));
+                                  if (errorMessage?.includes("ডেলিভারি এলাকা")) {
+                                    setErrorMessage(null);
+                                  }
+                                }}
                                 className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between ${
                                   isAreaActive
-                                    ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30"
+                                    ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20"
                                     : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-600"
                                 }`}
                               >
@@ -964,7 +992,7 @@ export function CodFunnelClient({
                                     className={`w-4 h-4 rounded-full flex items-center justify-center border-2 shrink-0 ${
                                       isAreaActive
                                         ? "border-emerald-600 bg-emerald-600 text-white"
-                                        : "border-slate-300 dark:border-slate-600"
+                                        : "border-slate-300 dark:border-slate-600 bg-transparent"
                                     }`}
                                   >
                                     {isAreaActive && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
@@ -974,7 +1002,7 @@ export function CodFunnelClient({
                                       {area.name}
                                     </span>
                                     <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                                      {String(area.id) === "1" ? "২৪ ঘণ্টার মধ্যে" : "৪৮-৭২ ঘণ্টার মধ্যে"}
+                                      {String(area.id) === "11" || /inside/i.test(area.name) ? "২৪-৪৮ ঘণ্টার মধ্যে" : "৪৮-৭২ ঘণ্টার মধ্যে"}
                                     </span>
                                   </div>
                                 </div>
@@ -1112,9 +1140,11 @@ export function CodFunnelClient({
                           </div>
 
                           <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 pt-2 border-t border-slate-100 dark:border-slate-800">
-                            <span>ডেলিভারি চার্জ ({activeShippingArea.name})</span>
+                            <span>ডেলিভারি চার্জ {activeShippingArea ? `(${activeShippingArea.name})` : ""}</span>
                             <span className="font-semibold text-slate-900 dark:text-white">
-                              {formatCurrency(shippingCost)}
+                              {activeShippingArea ? formatCurrency(shippingCost) : (
+                                <span className="text-amber-600 dark:text-amber-400 text-xs font-medium">এলাকা নির্বাচন করুন</span>
+                              )}
                             </span>
                           </div>
 
