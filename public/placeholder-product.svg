@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" fill="#0f172a">
+  <rect width="600" height="600" fill="#1e293b"/>
+  <circle cx="300" cy="270" r="90" fill="#334155"/>
+  <path d="M250 270 L285 305 L350 240" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="300" y="420" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#94a3b8" text-anchor="middle">
+    Premium Lifestyle Edition
+  </text>
+  <text x="300" y="460" font-family="system-ui, sans-serif" font-size="18" fill="#64748b" text-anchor="middle">
+    Cash on Delivery Available
+  </text>
+</svg>
+
