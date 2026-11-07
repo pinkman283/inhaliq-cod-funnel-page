@@ -456,8 +456,8 @@ export function CodFunnelClient({
               <ShoppingBag className="w-4 h-4" />
             </div>
             <div>
-              <span className="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white uppercase font-sans">
-                Compact Store
+              <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white uppercase font-sans">
+                Inhaliq
               </span>
               <p className="hidden xs:block text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-none">
                 Official Cash on Delivery Store
@@ -1368,7 +1368,7 @@ export function CodFunnelClient({
 
       {/* 7. CLEAN PROFESSIONAL FOOTER */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-6 text-center border-t border-slate-200 dark:border-slate-800/80 mt-12 space-y-2 text-xs text-slate-500 dark:text-slate-400">
-        <p>© {new Date().getFullYear()} Compact Store. সর্বস্বত্ব সংরক্ষিত।</p>
+        <p>© {new Date().getFullYear()} Inhaliq. সর্বস্বত্ব সংরক্ষিত।</p>
         <p className="text-[11px] text-slate-400 dark:text-slate-500">
           সারা বাংলাদেশে ১০০% ক্যাশ অন ডেলিভারি এবং জেনুইন কোয়ালিটি সেবা।
         </p>
