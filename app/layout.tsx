@@ -13,9 +13,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Inhaliq | Premium Official Cash on Delivery Store",
-  description: "Official online store for genuine products. Order now with 100% Cash on Delivery across Bangladesh.",
-  keywords: "inhaliq, official store, lifestyle, accessories, bangladesh, cash on delivery",
+  title: "Urban Gadget BD — Premium Compact Lifestyle Edition | Cash on Delivery",
+  description: "Official online store for genuine lifestyle products. Order now with 100% Cash on Delivery across Bangladesh.",
+  keywords: "compact store, urban gadget, lifestyle, accessories, bangladesh, cash on delivery",
   robots: {
     index: true,
     follow: true,
@@ -30,8 +30,8 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Inhaliq | Premium Official Cash on Delivery Store",
-    description: "Official online store for genuine products. Order now with 100% Cash on Delivery across Bangladesh.",
+    title: "Urban Gadget BD — Premium Compact Lifestyle Edition | Cash on Delivery",
+    description: "Official online store for genuine lifestyle products. Order now with 100% Cash on Delivery across Bangladesh.",
     type: "website",
     locale: "bn_BD",
   },

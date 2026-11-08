@@ -53,7 +53,8 @@ export interface ShippingArea {
 }
 
 /**
- * Formats an image URL through our server-side image proxy to prevent leaking store domains.
+ * Formats an image URL through our server-side image proxy using Base64URL encoding
+ * to completely prevent leaking backend store domains or product filenames.
  */
 export function proxyImageUrl(rawUrl: string | undefined | null): string {
   if (!rawUrl || typeof rawUrl !== "string") {
@@ -65,14 +66,24 @@ export function proxyImageUrl(rawUrl: string | undefined | null): string {
     return rawUrl;
   }
 
-  // If relative path, resolve with backend origin
-  const backendOrigin = (process.env.LARAVEL_BACKEND_ORIGIN || "https://inhaliq.com").replace(/\/+$/, "");
-  let absoluteUrl = rawUrl;
-  if (rawUrl.startsWith("/")) {
-    absoluteUrl = `${backendOrigin}${rawUrl}`;
+  // Extract relative path (strip backend origin to leave clean relative path e.g. /storage/product/...)
+  let relativePath = rawUrl;
+  try {
+    if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+      const parsed = new URL(rawUrl);
+      relativePath = parsed.pathname + parsed.search;
+    }
+  } catch {
+    // Keep relativePath as-is
   }
 
-  return `/api/image-proxy?url=${encodeURIComponent(absoluteUrl)}`;
+  if (!relativePath.startsWith("/")) {
+    relativePath = `/${relativePath}`;
+  }
+
+  // Base64URL encode the relative path so no domain or filename is exposed in the HTML
+  const base64UrlPath = Buffer.from(relativePath, "utf-8").toString("base64url");
+  return `/api/image-proxy?id=${base64UrlPath}`;
 }
 
 /**
@@ -164,9 +175,12 @@ export function normalizeProduct(
         }))
     : [];
 
-  // Short specs / description
+  // Short specs / description (sanitized and strictly bounded to prevent RSC payload bloat)
   const rawDescription = raw.short_description || raw.description || raw.details || raw.specification || "";
-  const shortSpecs = sanitizeText(rawDescription) || "প্রিমিয়াম কোয়ালিটি এবং নিখুঁত ফিনিশিং।";
+  let shortSpecs = sanitizeText(rawDescription) || "প্রিমিয়াম কোয়ালিটি এবং নিখুঁত ফিনিশিং।";
+  if (shortSpecs.length > 180) {
+    shortSpecs = shortSpecs.slice(0, 177) + "...";
+  }
 
   // Stock status (checking stock, stock_qty, stock_quantity)
   const rawStock = raw.stock ?? raw.stock_qty ?? raw.stock_quantity;
@@ -185,10 +199,22 @@ export function normalizeProduct(
       : (raw.category_id ? Number(raw.category_id) : undefined)
   );
 
+  const rawSlug = String(raw.slug || `product-${raw.id || Date.now()}`);
+  const cleanSlug = sanitizeText(rawSlug)
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-");
+
+  const cleanCategorySlug = categoryContext?.slug
+    ? sanitizeText(categoryContext.slug).toLowerCase().replace(/[^a-z0-9]+/g, "-")
+    : undefined;
+  const cleanCategoryName = categoryContext?.name
+    ? sanitizeText(categoryContext.name)
+    : undefined;
+
   return {
     id: Number(raw.id ?? raw.product_id ?? 1),
     name: sanitizeText(raw.name || raw.title || "প্রিমিয়াম প্রোডাক্ট"),
-    slug: raw.slug || `product-${raw.id || Date.now()}`,
+    slug: cleanSlug,
     shortSpecs,
     regularPrice,
     offerPrice,
@@ -199,8 +225,8 @@ export function normalizeProduct(
     inStock,
     hasVariants,
     categoryId: resolvedCategoryId,
-    categorySlug: categoryContext?.slug,
-    categoryName: categoryContext?.name,
+    categorySlug: cleanCategorySlug,
+    categoryName: cleanCategoryName,
   };
 }
 

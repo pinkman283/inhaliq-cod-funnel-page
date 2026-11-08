@@ -7,48 +7,68 @@
 
 // Mapping of regex rules according to Meta Ad Compliance guidelines
 const SANITIZATION_RULES: Array<{ pattern: RegExp; replacement: string }> = [
-  // 1. Strip nicotine strengths, salt, and variations completely first
+  // 1. Strip nicotine strengths, salt, mg, percentages, and variations completely first
   {
-    pattern: /\b(nicotine|nic|salt)\b/gi,
+    pattern: /\b(nicotine\w*|nic\b|salt\s*nic|freebase)\b/gi,
     replacement: "",
   },
   {
-    pattern: /\b\d+(\.\d+)?%\s*(nic|nicotine)?\b/gi,
+    pattern: /\d+(\.\d+)?\s*%/g, // Matches 5%, 2%, 5 %, etc.
     replacement: "",
   },
   {
-    pattern: /\b\d+\s*mg\b/gi,
+    pattern: /\b\d+\s*mg(\/ml)?\b/gi, // Matches 50mg, 30mg, etc.
     replacement: "",
   },
 
-  // 2. puffs / puff -> Cycles (e.g., "10000 Puffs" -> "10000 Cycles")
+  // 2. puffs / puff / hits / draws -> Cycles (e.g., "10000 Puffs" -> "10000 Cycles")
   {
-    pattern: /\bpuffs?\b/gi,
+    pattern: /\b(puff\w*|hits?|draws?)\b/gi,
     replacement: "Cycles",
   },
-
-  // 3. vapes / disposable -> Compact Edition
   {
-    pattern: /\b(vapes?|disposables?)\b/gi,
+    pattern: /-(puffs?|hits?)-/gi,
+    replacement: "-cycles-",
+  },
+
+  // 3. vapes / vaping / vapers / disposable -> Compact Edition
+  {
+    pattern: /\b(vape\w*|vaping|disposables?|e-?cigs?|e-?cigarettes?)\b/gi,
     replacement: "Compact Edition",
   },
 
-  // 4. pods / kits / devices -> System
+  // 4. pods / kits / devices / mods / cartridges -> System
   {
-    pattern: /\b(pods?|kits?|devices?)\b/gi,
+    pattern: /\b(pods?|kits?|devices?|mods?|cartridges?)\b/gi,
     replacement: "System",
   },
 
-  // 5. flavors / flavours -> Edition
+  // 5. tobacco / cuban / cigar -> Classic (e.g., "Caramel Tobacco" -> "Caramel Classic")
   {
-    pattern: /\b(flavors?|flavours?)\b/gi,
+    pattern: /\b(tobacco\w*|cuban\w*|cigar\w*)\b/gi,
+    replacement: "Classic",
+  },
+  {
+    pattern: /-tobacco/gi,
+    replacement: "-classic",
+  },
+
+  // 6. flavors / flavours / tastes -> Edition
+  {
+    pattern: /\b(flavors?|flavours?|tastes?)\b/gi,
     replacement: "Edition",
   },
 
-  // 6. e-liquid / eliquid / juice / smoke / smoking / vapor / cloud -> Series
+  // 7. e-liquid / eliquid / juice / smoke / smoking / vapor / cloud -> Series
   {
-    pattern: /\b(e-?liquids?|juices?|smokes?|smokings?|vapors?|vapours?|clouds?)\b/gi,
+    pattern: /\b(e-?liquids?|eliquids?|e-?juices?|juices?|smoke\w*|vapors?|vapours?|clouds?|inhale\w*|exhale\w*)\b/gi,
     replacement: "Series",
+  },
+
+  // 8. Inhaliq brand references -> Urban Series
+  {
+    pattern: /\binhaliq\w*\b/gi,
+    replacement: "Urban Series",
   },
 ];
 

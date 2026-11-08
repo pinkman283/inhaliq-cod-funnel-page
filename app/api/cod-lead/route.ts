@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       utm_medium: body.utm_medium || "cpc",
       utm_campaign: body.utm_campaign || "cod_funnel",
       referrer: body.referrer || "https://l.facebook.com/",
-      domain: body.domain || request.headers.get("host") || "inhaliq.com",
+      domain: body.domain || request.headers.get("host") || "cod-funnel.local",
       device_type: body.device_type || defaultDeviceType,
       channel: body.channel || (body.utm_source === "google" ? "google" : "facebook"),
       app_type: body.app_type || "mobile_web",

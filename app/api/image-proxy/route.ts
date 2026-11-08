@@ -17,7 +17,26 @@ const FALLBACK_SVG = `
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const targetUrl = searchParams.get("url");
+  const idParam = searchParams.get("id");
+  const urlParam = searchParams.get("url");
+
+  let targetUrl = "";
+
+  if (idParam) {
+    try {
+      const decodedPath = Buffer.from(idParam, "base64url").toString("utf-8");
+      // Security check: must start with / to prevent open proxy abuse
+      if (!decodedPath.startsWith("/")) {
+        return new NextResponse("Invalid image path", { status: 400 });
+      }
+      const backendOrigin = (process.env.LARAVEL_BACKEND_ORIGIN || "https://www.inhaliq.com").replace(/\/+$/, "");
+      targetUrl = `${backendOrigin}${decodedPath}`;
+    } catch {
+      targetUrl = "";
+    }
+  } else if (urlParam) {
+    targetUrl = urlParam;
+  }
 
   if (!targetUrl) {
     return new NextResponse(FALLBACK_SVG, {

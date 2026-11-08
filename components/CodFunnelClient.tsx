@@ -515,7 +515,7 @@ export function CodFunnelClient({
             </div>
             <div>
               <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white uppercase font-sans">
-                Inhaliq
+                URBAN EDITION
               </span>
               <p className="hidden xs:block text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-none">
                 Official Cash on Delivery Store
@@ -757,7 +757,7 @@ export function CodFunnelClient({
                         <PhoneCall className="w-3.5 h-3.5" />
                       </a>
                       <a
-                        href="https://wa.me/8801647382373?text=হ্যালো%20Inhaliq,%20আমি%20অর্ডার%20সম্পর্কে%20জানতে%20চাই।"
+                        href="https://wa.me/8801647382373?text=হ্যালো,%20আমি%20অর্ডার%20সম্পর্কে%20জানতে%20চাই।"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-7 h-7 rounded-lg bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center transition-colors shadow-2xs"
@@ -1463,7 +1463,7 @@ export function CodFunnelClient({
                             <span>সরাসরি কল</span>
                           </a>
                           <a
-                            href="https://wa.me/8801647382373?text=হ্যালো%20Inhaliq,%20আমি%20অর্ডার%20করতে%20সাহায্য%20চাই।"
+                            href="https://wa.me/8801647382373?text=হ্যালো,%20আমি%20অর্ডার%20করতে%20সাহায্য%20চাই।"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="py-2 px-3 rounded-lg bg-[#25D366] hover:bg-[#20ba59] text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
@@ -1582,7 +1582,7 @@ export function CodFunnelClient({
         }`}
       >
         <a
-          href="https://wa.me/8801647382373?text=হ্যালো%20Inhaliq,%20আমি%20অর্ডার%20সম্পর্কে%20জানতে%20চাই।"
+          href="https://wa.me/8801647382373?text=হ্যালো,%20আমি%20অর্ডার%20সম্পর্কে%20জানতে%20চাই।"
           target="_blank"
           rel="noopener noreferrer"
           className="group flex items-center gap-2 py-2.5 px-3.5 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer font-semibold text-xs"
@@ -1597,7 +1597,7 @@ export function CodFunnelClient({
 
       {/* 8. CLEAN PROFESSIONAL FOOTER */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-6 text-center border-t border-slate-200 dark:border-slate-800/80 mt-12 space-y-2 text-xs text-slate-500 dark:text-slate-400">
-        <p>© {new Date().getFullYear()} Inhaliq. সর্বস্বত্ব সংরক্ষিত।</p>
+        <p>© {new Date().getFullYear()} Urban Edition. সর্বস্বত্ব সংরক্ষিত।</p>
         <p className="text-[11px] text-slate-400 dark:text-slate-500">
           সারা বাংলাদেশে ১০০% ক্যাশ অন ডেলিভারি এবং জেনুইন কোয়ালিটি সেবা।
         </p>
