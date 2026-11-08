@@ -20,6 +20,15 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", type: "image/png" },
+    ],
+  },
   openGraph: {
     title: "Inhaliq | Premium Official Cash on Delivery Store",
     description: "Official online store for genuine products. Order now with 100% Cash on Delivery across Bangladesh.",

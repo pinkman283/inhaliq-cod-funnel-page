@@ -965,6 +965,7 @@ export function CodFunnelClient({
                               </div>
                               <select
                                 id="product-color-select"
+                                name="color_id"
                                 value={selectedColorId ?? ""}
                                 onChange={(e) => {
                                   const val = e.target.value ? Number(e.target.value) : null;
@@ -1006,6 +1007,7 @@ export function CodFunnelClient({
                               </div>
                               <select
                                 id="product-size-select"
+                                name="size_id"
                                 value={selectedSizeId ?? ""}
                                 onChange={(e) => {
                                   const val = e.target.value ? Number(e.target.value) : null;
