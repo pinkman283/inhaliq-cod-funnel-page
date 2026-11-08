@@ -151,21 +151,12 @@ export function CodFunnelClient({
   const checkoutSectionRef = useRef<HTMLDivElement>(null);
   const productSectionRef = useRef<HTMLDivElement>(null);
 
-  // Sync active image & variants whenever selected product changes
+  // Sync active image & variants whenever selected product changes (initially none selected)
   useEffect(() => {
     if (selectedProduct) {
       setActiveImage(selectedProduct.image);
-      if (selectedProduct.colors.length > 0) {
-        setSelectedColorId(selectedProduct.colors[0].id);
-      } else {
-        setSelectedColorId(null);
-      }
-
-      if (selectedProduct.sizes.length > 0) {
-        setSelectedSizeId(selectedProduct.sizes[0].id);
-      } else {
-        setSelectedSizeId(null);
-      }
+      setSelectedColorId(null);
+      setSelectedSizeId(null);
 
       // Track ViewContent for Meta Pixel
       trackClientPixelEvent("ViewContent", {
@@ -329,27 +320,52 @@ export function CodFunnelClient({
 
     // Validate mandatory variants if present on product
     if (selectedProduct.colors.length > 0 && !selectedColorId) {
-      setErrorMessage("দয়া করে প্রোডাক্টের Variant / Edition নির্বাচন করুন।");
+      setErrorMessage("দয়া করে প্রোডাক্টের ফ্লেভার / ভেরিয়েন্ট নির্বাচন করুন।");
+      const colorSelectEl = document.getElementById("product-color-select");
+      if (colorSelectEl) {
+        colorSelectEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        colorSelectEl.focus();
+      }
       return;
     }
 
     if (selectedProduct.sizes.length > 0 && !selectedSizeId) {
-      setErrorMessage("দয়া করে প্রোডাক্টের Option / Pack নির্বাচন করুন।");
+      setErrorMessage("দয়া করে প্রোডাক্টের সাইজ / অপশন নির্বাচন করুন।");
+      const sizeSelectEl = document.getElementById("product-size-select");
+      if (sizeSelectEl) {
+        sizeSelectEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        sizeSelectEl.focus();
+      }
       return;
     }
 
     if (!name.trim()) {
       setErrorMessage("আপনার পূর্ণ নাম লিখুন।");
+      const nameEl = document.getElementById("customer-name-input");
+      if (nameEl) {
+        nameEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        nameEl.focus();
+      }
       return;
     }
 
     if (!isPhoneValid) {
       setErrorMessage("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)।");
+      const phoneEl = document.getElementById("customer-phone-input");
+      if (phoneEl) {
+        phoneEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        phoneEl.focus();
+      }
       return;
     }
 
     if (!address.trim() || address.trim().length < 6) {
       setErrorMessage("সম্পূর্ণ ডেলিভারি ঠিকানা (বাসা নং, রোড, এলাকা ও জেলা) লিখুন।");
+      const addrEl = document.getElementById("customer-address-input");
+      if (addrEl) {
+        addrEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        addrEl.focus();
+      }
       return;
     }
 
@@ -437,6 +453,9 @@ export function CodFunnelClient({
   const handleSelectProduct = (product: SanitizedProduct) => {
     setSelectedProduct(product);
     setActiveImage(product.image);
+    setSelectedColorId(null);
+    setSelectedSizeId(null);
+    setErrorMessage(null);
     if (checkoutSectionRef.current) {
       checkoutSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -899,7 +918,7 @@ export function CodFunnelClient({
                   </div>
 
                   {/* 2-Column Responsive Layout on Desktop */}
-                  <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  <form noValidate onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     {/* LEFT COLUMN: Customer Information & Options (7 Columns on LG) */}
                     <div className="lg:col-span-7 bg-white dark:bg-[#131c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-5 shadow-xs">
                       {/* Active Model Snapshot Card */}
@@ -926,19 +945,41 @@ export function CodFunnelClient({
                         </div>
                       </div>
 
-                      {/* Variant Selectors (Phase 4: Colors/Flavors and Sizes with Price & Stock Support) */}
+                      {/* Variant Selectors (Mandatory: Flavor / Variant & Size with unselected initial state) */}
                       {(selectedProduct.colors.length > 0 || selectedProduct.sizes.length > 0) && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
                           {selectedProduct.colors.length > 0 && (
                             <div className="space-y-1.5">
-                              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                ফ্লেভার / কালার নির্বাচন করুন *
-                              </label>
+                              <div className="flex items-center justify-between">
+                                <label
+                                  htmlFor="product-color-select"
+                                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+                                >
+                                  ফ্লেভার / কালার নির্বাচন করুন *
+                                </label>
+                                {!selectedColorId && (
+                                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                                    (বাধ্যতামূলক — নির্বাচন করুন)
+                                  </span>
+                                )}
+                              </div>
                               <select
+                                id="product-color-select"
                                 value={selectedColorId ?? ""}
-                                onChange={(e) => setSelectedColorId(Number(e.target.value))}
-                                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-shadow cursor-pointer"
+                                onChange={(e) => {
+                                  const val = e.target.value ? Number(e.target.value) : null;
+                                  setSelectedColorId(val);
+                                  if (val) setErrorMessage(null);
+                                }}
+                                className={`w-full px-3 py-2.5 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all cursor-pointer ${
+                                  !selectedColorId
+                                    ? "border-amber-400 dark:border-amber-500/80 bg-amber-50/20 dark:bg-amber-950/10 ring-1 ring-amber-400/40"
+                                    : "border-slate-300 dark:border-slate-700"
+                                }`}
                               >
+                                <option value="" disabled>
+                                  -- ফ্লেভার / ভেরিয়েন্ট নির্বাচন করুন --
+                                </option>
                                 {selectedProduct.colors.map((c) => (
                                   <option key={c.id} value={c.id} disabled={c.stock_qty !== undefined && c.stock_qty <= 0}>
                                     {c.name} {c.price && c.price !== selectedProduct.offerPrice ? `(${formatCurrency(c.price)})` : ""} {c.stock_qty !== undefined && c.stock_qty <= 0 ? "(স্টক শেষ)" : ""}
@@ -950,14 +991,36 @@ export function CodFunnelClient({
 
                           {selectedProduct.sizes.length > 0 && (
                             <div className="space-y-1.5">
-                              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                সাইজ / অপশন নির্বাচন করুন *
-                              </label>
+                              <div className="flex items-center justify-between">
+                                <label
+                                  htmlFor="product-size-select"
+                                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+                                >
+                                  সাইজ / অপশন নির্বাচন করুন *
+                                </label>
+                                {!selectedSizeId && (
+                                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                                    (বাধ্যতামূলক — নির্বাচন করুন)
+                                  </span>
+                                )}
+                              </div>
                               <select
+                                id="product-size-select"
                                 value={selectedSizeId ?? ""}
-                                onChange={(e) => setSelectedSizeId(Number(e.target.value))}
-                                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-shadow cursor-pointer"
+                                onChange={(e) => {
+                                  const val = e.target.value ? Number(e.target.value) : null;
+                                  setSelectedSizeId(val);
+                                  if (val) setErrorMessage(null);
+                                }}
+                                className={`w-full px-3 py-2.5 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all cursor-pointer ${
+                                  !selectedSizeId
+                                    ? "border-amber-400 dark:border-amber-500/80 bg-amber-50/20 dark:bg-amber-950/10 ring-1 ring-amber-400/40"
+                                    : "border-slate-300 dark:border-slate-700"
+                                }`}
                               >
+                                <option value="" disabled>
+                                  -- সাইজ / অপশন নির্বাচন করুন --
+                                </option>
                                 {selectedProduct.sizes.map((s) => (
                                   <option key={s.id} value={s.id} disabled={s.stock_qty !== undefined && s.stock_qty <= 0}>
                                     {s.name} {s.price && s.price !== selectedProduct.offerPrice ? `(${formatCurrency(s.price)})` : ""} {s.stock_qty !== undefined && s.stock_qty <= 0 ? "(স্টক শেষ)" : ""}
@@ -1069,10 +1132,11 @@ export function CodFunnelClient({
 
                         {/* Name Input */}
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+                          <label htmlFor="customer-name-input" className="block text-xs font-medium text-slate-700 dark:text-slate-300">
                             আপনার পূর্ণ নাম *
                           </label>
                           <input
+                            id="customer-name-input"
                             type="text"
                             required
                             value={name}
@@ -1085,7 +1149,7 @@ export function CodFunnelClient({
                         {/* Phone with BD validation */}
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between">
-                            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+                            <label htmlFor="customer-phone-input" className="block text-xs font-medium text-slate-700 dark:text-slate-300">
                               মোবাইল নম্বর *
                             </label>
                             {phoneTouched && (
@@ -1107,6 +1171,7 @@ export function CodFunnelClient({
                             )}
                           </div>
                           <input
+                            id="customer-phone-input"
                             type="tel"
                             inputMode="numeric"
                             required
@@ -1125,10 +1190,11 @@ export function CodFunnelClient({
 
                         {/* Address Textarea */}
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+                          <label htmlFor="customer-address-input" className="block text-xs font-medium text-slate-700 dark:text-slate-300">
                             সম্পূর্ণ ডেলিভারি ঠিকানা *
                           </label>
                           <textarea
+                            id="customer-address-input"
                             required
                             rows={2}
                             value={address}
@@ -1171,11 +1237,39 @@ export function CodFunnelClient({
                         {/* Item Details */}
                         <div className="space-y-3 text-xs sm:text-sm">
                           <div className="flex items-center justify-between text-slate-700 dark:text-slate-300">
-                            <div>
+                            <div className="space-y-0.5">
                               <span className="font-semibold text-slate-900 dark:text-white block truncate max-w-[200px]">
                                 {selectedProduct.name}
                               </span>
-                              <span className="text-slate-500 dark:text-slate-400 text-xs">
+                              {selectedProduct.colors.length > 0 && (
+                                <span className="block text-xs">
+                                  <span className="text-slate-500 dark:text-slate-400">ফ্লেভার: </span>
+                                  {selectedColorId ? (
+                                    <span className="font-medium text-emerald-700 dark:text-emerald-400">
+                                      {selectedProduct.colors.find((c) => c.id === selectedColorId)?.name}
+                                    </span>
+                                  ) : (
+                                    <span className="text-amber-600 dark:text-amber-400 font-medium">
+                                      সিলেক্ট করুন
+                                    </span>
+                                  )}
+                                </span>
+                              )}
+                              {selectedProduct.sizes.length > 0 && (
+                                <span className="block text-xs">
+                                  <span className="text-slate-500 dark:text-slate-400">সাইজ: </span>
+                                  {selectedSizeId ? (
+                                    <span className="font-medium text-emerald-700 dark:text-emerald-400">
+                                      {selectedProduct.sizes.find((s) => s.id === selectedSizeId)?.name}
+                                    </span>
+                                  ) : (
+                                    <span className="text-amber-600 dark:text-amber-400 font-medium">
+                                      সিলেক্ট করুন
+                                    </span>
+                                  )}
+                                </span>
+                              )}
+                              <span className="text-slate-500 dark:text-slate-400 text-xs block">
                                 {formatCurrency(unitPrice)} × {toBengaliNumerals(quantity)}
                               </span>
                             </div>
