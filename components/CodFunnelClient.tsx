@@ -62,6 +62,15 @@ function formatCurrency(amount: number): string {
   return `৳${toBengaliNumerals(formatted)}`;
 }
 
+// WhatsApp brand SVG icon
+function WhatsAppIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2ZM12.05 20.16C10.57 20.16 9.12 19.76 7.85 19.01L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.8 7.37 7.5 3.67 12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.16 12.05 20.16ZM16.57 14.39C16.32 14.26 15.1 13.66 14.88 13.58C14.65 13.5 14.48 13.46 14.32 13.71C14.15 13.96 13.68 14.51 13.53 14.68C13.39 14.84 13.24 14.86 12.99 14.74C12.74 14.61 11.94 14.35 10.99 13.5C10.25 12.84 9.75 12.03 9.61 11.78C9.46 11.53 9.59 11.4 9.72 11.27C9.83 11.16 9.97 10.98 10.1 10.83C10.22 10.68 10.27 10.57 10.35 10.41C10.43 10.24 10.39 10.1 10.33 9.98C10.27 9.85 9.78 8.65 9.57 8.16C9.37 7.68 9.17 7.74 9.02 7.73C8.88 7.73 8.71 7.73 8.55 7.73C8.38 7.73 8.11 7.79 7.89 8.04C7.66 8.28 7.03 8.87 7.03 10.08C7.03 11.29 7.91 12.45 8.03 12.62C8.16 12.78 9.76 15.25 12.22 16.31C12.81 16.56 13.26 16.71 13.62 16.82C14.21 17.01 14.75 16.98 15.18 16.92C15.65 16.85 16.64 16.32 16.85 15.74C17.05 15.17 17.05 14.68 16.99 14.58C16.93 14.47 16.82 14.51 16.57 14.39Z" />
+    </svg>
+  );
+}
+
 export function CodFunnelClient({
   products,
   categories = [],
@@ -570,10 +579,18 @@ export function CodFunnelClient({
                   <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>পার্সেল দেখে ও যাচাই করে পেমেন্ট</span>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 flex items-center gap-2">
-                  <PhoneCall className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <span>যেকোনো তথ্যে সরাসরি ফোন সহায়তা</span>
-                </div>
+                <a
+                  href="tel:01647382373"
+                  className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 hover:border-emerald-500/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <PhoneCall className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="truncate">যেকোনো তথ্যে কল/হোয়াটসঅ্যাপ:</span>
+                  </div>
+                  <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 text-xs shrink-0">
+                    01647-382373
+                  </span>
+                </a>
               </div>
 
               {/* Action Buttons */}
@@ -665,13 +682,41 @@ export function CodFunnelClient({
                     </div>
                   </div>
 
-                  <div className="p-3 sm:p-3.5 rounded-xl bg-white dark:bg-[#131c2e] border border-slate-200/90 dark:border-slate-800 shadow-xs flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shrink-0">
-                      <PhoneCall className="w-4 h-4" />
+                  {/* Phone & WhatsApp Support */}
+                  <div className="p-3 sm:p-3.5 rounded-xl bg-white dark:bg-[#131c2e] border border-slate-200/90 dark:border-slate-800 shadow-xs flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shrink-0">
+                        <PhoneCall className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">ফোন ও হোয়াটসঅ্যাপ</p>
+                        <a
+                          href="tel:01647382373"
+                          className="text-[11px] sm:text-xs font-extrabold text-emerald-700 dark:text-emerald-400 hover:underline block truncate tracking-wide font-mono"
+                        >
+                          01647-382373
+                        </a>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">ফোন সাপোর্ট</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">অর্ডার সহায়তায় কল</p>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <a
+                        href="tel:01647382373"
+                        className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center transition-colors"
+                        title="সরাসরি কল করুন: 01647-382373"
+                        aria-label="Call 01647382373"
+                      >
+                        <PhoneCall className="w-3.5 h-3.5" />
+                      </a>
+                      <a
+                        href="https://wa.me/8801647382373?text=হ্যালো%20Inhaliq,%20আমি%20অর্ডার%20সম্পর্কে%20জানতে%20চাই।"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-7 h-7 rounded-lg bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center transition-colors shadow-2xs"
+                        title="WhatsApp এ মেসেজ দিন: 01647-382373"
+                        aria-label="WhatsApp 01647382373"
+                      >
+                        <WhatsAppIcon className="w-3.5 h-3.5" />
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -1258,12 +1303,47 @@ export function CodFunnelClient({
                         </div>
                       </div>
 
-                      {/* Helpline Card */}
-                      <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 flex items-center gap-3 text-xs text-slate-700 dark:text-slate-300">
-                        <PhoneCall className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
-                        <div>
-                          <p className="font-semibold text-slate-900 dark:text-white">অর্ডারে সহায়তা প্রয়োজন?</p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400">কল করুন আমাদের হেল্পলাইনে</p>
+                      {/* Helpline & WhatsApp Support Card */}
+                      <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                              <PhoneCall className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white leading-tight">
+                                অর্ডারে কোনো সমস্যা হচ্ছে?
+                              </p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                সরাসরি কল বা হোয়াটসঅ্যাপে অর্ডার করুন
+                              </p>
+                            </div>
+                          </div>
+                          <a
+                            href="tel:01647382373"
+                            className="text-xs sm:text-sm font-extrabold text-emerald-700 dark:text-emerald-400 font-mono tracking-wider hover:underline shrink-0"
+                          >
+                            01647-382373
+                          </a>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/80 dark:border-slate-700/60">
+                          <a
+                            href="tel:01647382373"
+                            className="py-2 px-3 rounded-lg bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-650 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                          >
+                            <PhoneCall className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span>সরাসরি কল</span>
+                          </a>
+                          <a
+                            href="https://wa.me/8801647382373?text=হ্যালো%20Inhaliq,%20আমি%20অর্ডার%20করতে%20সাহায্য%20চাই।"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="py-2 px-3 rounded-lg bg-[#25D366] hover:bg-[#20ba59] text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                          >
+                            <WhatsAppIcon className="w-3.5 h-3.5" />
+                            <span>WhatsApp চ্যাট</span>
+                          </a>
                         </div>
                       </div>
                     </div>
@@ -1366,7 +1446,29 @@ export function CodFunnelClient({
         )}
       </AnimatePresence>
 
-      {/* 7. CLEAN PROFESSIONAL FOOTER */}
+      {/* 7. FLOATING WHATSAPP & PHONE SUPPORT BUTTON */}
+      <div
+        className={`fixed z-40 transition-all duration-300 right-4 sm:right-6 ${
+          showFloatingBar && !orderSuccess && selectedProduct
+            ? "bottom-20 sm:bottom-6"
+            : "bottom-5 sm:bottom-6"
+        }`}
+      >
+        <a
+          href="https://wa.me/8801647382373?text=হ্যালো%20Inhaliq,%20আমি%20অর্ডার%20সম্পর্কে%20জানতে%20চাই।"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center gap-2 py-2.5 px-3.5 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer font-semibold text-xs"
+          title="WhatsApp এ কথা বলুন: 01647-382373"
+          aria-label="WhatsApp Support 01647382373"
+        >
+          <WhatsAppIcon className="w-4 h-4" />
+          <span className="hidden sm:inline">WhatsApp সাপোর্ট</span>
+          <span className="sm:hidden font-mono text-[11px]">01647-382373</span>
+        </a>
+      </div>
+
+      {/* 8. CLEAN PROFESSIONAL FOOTER */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-6 text-center border-t border-slate-200 dark:border-slate-800/80 mt-12 space-y-2 text-xs text-slate-500 dark:text-slate-400">
         <p>© {new Date().getFullYear()} Inhaliq. সর্বস্বত্ব সংরক্ষিত।</p>
         <p className="text-[11px] text-slate-400 dark:text-slate-500">
