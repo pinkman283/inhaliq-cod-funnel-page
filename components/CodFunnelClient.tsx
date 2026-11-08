@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -145,8 +145,10 @@ export function CodFunnelClient({
   const isPhoneValid = useMemo(() => /^01[3-9]\d{8}$/.test(phone.trim()), [phone]);
   const phoneTouched = phone.length > 0;
 
-  // Refs
-  const lastLeadKeyRef = useRef<string>("");
+  // Refs for Lead Capture management & Form submission
+  const lastLeadSignatureRef = useRef<string>("");
+  const isCapturingLeadRef = useRef<boolean>(false);
+  const lastPixelLeadPhoneRef = useRef<string>("");
   const isSubmittingRef = useRef<boolean>(false);
   const checkoutSectionRef = useRef<HTMLDivElement>(null);
   const productSectionRef = useRef<HTMLDivElement>(null);
@@ -273,38 +275,66 @@ export function CodFunnelClient({
   const discountAmount = backendCalculation?.discount ?? 0;
   const totalPayable = backendCalculation?.total ?? (subtotal + shippingCost - discountAmount);
 
-  // Background Abandoned Checkout Lead Capture on phone or address blur
-  const handleLeadCapture = async () => {
-    if (!isPhoneValid || !selectedProduct) return;
+  // Background Abandoned Checkout Lead Capture (POST /checkout/lead)
+  const handleLeadCapture = useCallback(async () => {
+    // 1. Only capture when customer has entered a valid phone number and hasn't already submitted order
+    if (!isPhoneValid || !selectedProduct || orderSuccess || isSubmittingRef.current) return;
 
-    const leadKey = `${phone.trim()}-${selectedProduct.id}`;
-    if (lastLeadKeyRef.current === leadKey) return;
-    lastLeadKeyRef.current = leadKey;
+    const cleanPhone = phone.trim();
+    const cleanName = name.trim();
+    const cleanAddress = address.trim();
+    const productId = selectedProduct.id;
+
+    // 2. Prevent unnecessary duplicate requests if payload signature hasn't changed
+    const signature = `${cleanPhone}|${cleanName}|${cleanAddress}|${productId}`;
+    if (lastLeadSignatureRef.current === signature || isCapturingLeadRef.current) return;
+
+    isCapturingLeadRef.current = true;
 
     try {
       const tracking = getBrowserTrackingData();
-      await fetch("/api/cod-lead", {
+      const res = await fetch("/api/cod-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: phone.trim(),
-          name: name.trim(),
-          address: address.trim(),
-          product_ids: [selectedProduct.id],
+          phone: cleanPhone,
+          name: cleanName || undefined,
+          address: cleanAddress || undefined,
+          product_ids: [productId],
           ...tracking,
         }),
       });
 
-      // Track Lead for Meta Pixel
-      trackClientPixelEvent("Lead", {
-        content_name: selectedProduct.name,
-        value: totalPayable,
-        currency: "BDT",
-      });
+      if (res.ok) {
+        lastLeadSignatureRef.current = signature;
+      }
+
+      // Track Lead for Meta Pixel once per unique customer phone
+      if (lastPixelLeadPhoneRef.current !== cleanPhone) {
+        lastPixelLeadPhoneRef.current = cleanPhone;
+        trackClientPixelEvent("Lead", {
+          content_name: selectedProduct.name,
+          value: totalPayable,
+          currency: "BDT",
+        });
+      }
     } catch {
-      // Lead recording fails silently
+      // Lead recording fails silently and never blocks checkout
+    } finally {
+      isCapturingLeadRef.current = false;
     }
-  };
+  }, [isPhoneValid, phone, name, address, selectedProduct, orderSuccess, totalPayable]);
+
+  // Debounced lead capture: triggers 800ms after a valid phone number is entered or updated
+  useEffect(() => {
+    if (!isPhoneValid || !selectedProduct || orderSuccess) return;
+
+    const timer = setTimeout(() => {
+      handleLeadCapture();
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [isPhoneValid, phone, name, address, selectedProduct, handleLeadCapture, orderSuccess]);
 
   // Checkout Form Submission (with duplicate submission prevention)
   const handleSubmitOrder = async (e: React.FormEvent) => {
@@ -1143,6 +1173,7 @@ export function CodFunnelClient({
                             required
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            onBlur={handleLeadCapture}
                             placeholder="যেমন: মোঃ সাকিব হাসান"
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 text-base sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-shadow"
                           />

@@ -15,6 +15,9 @@ export interface BrowserTrackingData {
   eventSourceUrl: string;
   domain: string;
   referrer: string;
+  device_type: string;
+  channel: string;
+  app_type: string;
 }
 
 /**
@@ -64,6 +67,9 @@ export function getBrowserTrackingData(): BrowserTrackingData {
       eventSourceUrl: "",
       domain: "",
       referrer: "",
+      device_type: "mobile",
+      channel: "facebook",
+      app_type: "mobile_web",
     };
   }
 
@@ -85,6 +91,14 @@ export function getBrowserTrackingData(): BrowserTrackingData {
   const domain = window.location.hostname;
   const referrer = document.referrer || "https://l.facebook.com/";
 
+  // 5. Device & Platform Classification
+  const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  const isTablet = /iPad|tablet/i.test(userAgent);
+  const device_type = isMobile ? "mobile" : isTablet ? "tablet" : "desktop";
+  const channel = urlParams.get("channel") || (utm_source === "google" ? "google" : "facebook");
+  const app_type = "mobile_web";
+
   return {
     fbp,
     fbc,
@@ -95,6 +109,9 @@ export function getBrowserTrackingData(): BrowserTrackingData {
     eventSourceUrl,
     domain,
     referrer,
+    device_type,
+    channel,
+    app_type,
   };
 }
 
