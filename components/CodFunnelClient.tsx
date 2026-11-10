@@ -471,6 +471,20 @@ export function CodFunnelClient({
         areaName: activeShippingArea?.name || (selectedAreaId === "11" ? "Inside Dhaka" : "Outside Dhaka"),
       });
 
+      // Track Purchase event for Meta Pixel
+      trackClientPixelEvent(
+        "Purchase",
+        {
+          content_name: selectedProduct.name,
+          content_ids: [String(selectedProduct.id)],
+          content_type: "product",
+          value: data.total ?? totalPayable,
+          currency: "BDT",
+          num_items: quantity,
+        },
+        data.event_id || (data.order_id ? `order_${data.order_id}` : undefined)
+      );
+
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "অর্ডার করতে সমস্যা হয়েছে।";
