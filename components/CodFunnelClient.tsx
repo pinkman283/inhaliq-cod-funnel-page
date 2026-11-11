@@ -870,7 +870,7 @@ export function CodFunnelClient({
                           isSelected
                             ? "bg-white dark:bg-[#131c2e] border-emerald-600 dark:border-emerald-500 shadow-md ring-2 ring-emerald-500/20"
                             : "bg-white dark:bg-[#111827] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs"
-                        }`}
+                        } ${!product.inStock ? "opacity-75" : ""}`}
                       >
                         {/* Top: Selection Indicator & Stock status */}
                         <div className="flex items-center justify-between mb-2">
@@ -884,14 +884,23 @@ export function CodFunnelClient({
                             {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                           </div>
 
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            স্টক রয়েছে
-                          </span>
+                          {product.inStock ? (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              স্টক রয়েছে
+                            </span>
+                          ) : (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                              স্টক শেষ
+                            </span>
+                          )}
                         </div>
 
                         {/* Product Image */}
-                        <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800/80 mb-2 flex items-center justify-center border border-slate-100 dark:border-slate-800">
+                        <div className={`relative w-full aspect-square rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800/80 mb-2 flex items-center justify-center border border-slate-100 dark:border-slate-800 ${
+                          !product.inStock ? "opacity-60 grayscale-[30%]" : ""
+                        }`}>
                           <Image
                             src={product.image}
                             alt={product.name}
@@ -1407,6 +1416,24 @@ export function CodFunnelClient({
                           </div>
                         </div>
 
+                        {/* Out of Stock Notice */}
+                        {selectedProduct && !selectedProduct.inStock && (
+                          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                              <span>এই মডেলটির স্টক সাময়িকভাবে শেষ। অনুগ্রহ করে ইন-স্টক মডেল বেছে নিন।</span>
+                            </div>
+                            <a
+                              href="https://wa.me/8801647382373?text=Stock%20availability%20query"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold text-xs whitespace-nowrap hover:bg-emerald-700 transition-colors"
+                            >
+                              WhatsApp বুকিং
+                            </a>
+                          </div>
+                        )}
+
                         {/* Error Notice */}
                         {errorMessage && (
                           <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs sm:text-sm flex items-center gap-2">
@@ -1418,14 +1445,20 @@ export function CodFunnelClient({
                         {/* Primary Order Submission Button */}
                         <button
                           type="submit"
-                          disabled={isSubmitting}
-                          className="w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] text-white font-bold text-base shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
+                          disabled={isSubmitting || (selectedProduct !== null && !selectedProduct.inStock)}
+                          className={`w-full py-3.5 px-4 rounded-xl text-white font-bold text-base shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 disabled:cursor-not-allowed cursor-pointer ${
+                            selectedProduct && !selectedProduct.inStock
+                              ? "bg-slate-400 dark:bg-slate-700 text-slate-100 dark:text-slate-300 opacity-80"
+                              : "bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] disabled:opacity-75"
+                          }`}
                         >
                           {isSubmitting ? (
                             <>
                               <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                               <span>অর্ডার প্রসেস হচ্ছে...</span>
                             </>
+                          ) : selectedProduct && !selectedProduct.inStock ? (
+                            <span>স্টক শেষ — অন্য মডেল নির্বাচন করুন</span>
                           ) : (
                             <span>অর্ডার কনফার্ম করুন ({formatCurrency(totalPayable)})</span>
                           )}

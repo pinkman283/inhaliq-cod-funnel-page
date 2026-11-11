@@ -37,10 +37,14 @@ const SANITIZATION_RULES: Array<{ pattern: RegExp; replacement: string }> = [
     replacement: "Compact Edition",
   },
 
-  // 4. pods / kits / devices / mods / cartridges -> System
+  // 4. Pod system / pods / kits / mods / cartridges -> Device
   {
-    pattern: /\b(pods?|kits?|devices?|mods?|cartridges?)\b/gi,
-    replacement: "System",
+    pattern: /\b(pod\s*systems?|pods?\s*systems?|mods?\s*kits?)\b/gi,
+    replacement: "Device",
+  },
+  {
+    pattern: /\b(pods?|kits?|mods?|cartridges?)\b/gi,
+    replacement: "Device",
   },
 
   // 5. tobacco / cuban / cigar -> Classic (e.g., "Caramel Tobacco" -> "Caramel Classic")
@@ -96,6 +100,7 @@ export function cleanWhitespace(input: string): string {
     .replace(/\s+/g, " ") // Collapse whitespace
     .replace(/\s+([,.-])/g, "$1") // Fix spaced commas/periods
     .replace(/([,.-])\s*[,.-]+/g, "$1") // Remove duplicate punctuation
+    .replace(/\b(Device|System|Edition|Series|Compact Edition)\s+\1\b/gi, "$1") // Remove duplicate repeated words
     .trim();
 }
 

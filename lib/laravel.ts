@@ -322,8 +322,13 @@ export async function getFunnelCatalog(): Promise<FunnelCatalogData> {
     }
   }
 
-  // Strategy 3: Subcategory-wise fetching for the Disposable category ONLY
+  // Strategy 3: Catalog fetching for Disposable (brand subcategories) and Devices category
   let disposableSubcategories: Array<{ id: number; name: string; slug: string }> = [];
+  let deviceCategory: { id: number; name: string; slug: string } = {
+    id: 3,
+    name: "Device",
+    slug: "devices-1",
+  };
 
   try {
     const navRes = await apiGetNavMenu();
@@ -352,9 +357,27 @@ export async function getFunnelCatalog(): Promise<FunnelCatalogData> {
             slug: String(sub.slug),
           }));
       }
+
+      // Find Devices category
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const devCat = menuList.find((c: any) =>
+        c && (
+          String(c.slug).includes("device") ||
+          /device/i.test(c.name || "") ||
+          Number(c.id) === 3
+        )
+      );
+
+      if (devCat) {
+        deviceCategory = {
+          id: Number(devCat.id),
+          name: "Device",
+          slug: String(devCat.slug || "devices-1"),
+        };
+      }
     }
   } catch (err) {
-    console.warn("[getFunnelCatalog] Could not fetch nav-menu, using standard disposable subcategories:", err);
+    console.warn("[getFunnelCatalog] Could not fetch nav-menu, using standard defaults:", err);
   }
 
   // Fallback subcategories if nav-menu was unreachable (strictly excluding IEET)
@@ -369,6 +392,7 @@ export async function getFunnelCatalog(): Promise<FunnelCatalogData> {
   const activeCategories: SanitizedCategory[] = [];
   const categoryProductsMap = new Map<number, SanitizedProduct>();
 
+  // Fetch Disposable subcategories
   const subCatPromises = disposableSubcategories.map(async (sub) => {
     try {
       const pRes = await apiGetSubcategoryProducts(sub.slug, 100);
@@ -388,7 +412,8 @@ export async function getFunnelCatalog(): Promise<FunnelCatalogData> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .filter((p: any) => p && (p.status === undefined || p.status === 1 || p.status === "1") && !/ieet/i.test(p.name || p.slug || ""))
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((p: any) => normalizeProduct(p, subContext));
+        .map((p: any) => normalizeProduct(p, subContext))
+        .filter((p: SanitizedProduct) => p.inStock);
 
       return {
         cat: {
@@ -404,7 +429,44 @@ export async function getFunnelCatalog(): Promise<FunnelCatalogData> {
     }
   });
 
-  const results = await Promise.all(subCatPromises);
+  // Fetch Devices category
+  const devicePromise = (async () => {
+    try {
+      const devRes = await apiGetCategoryProducts(deviceCategory.slug, 100);
+      const rawData = devRes.data?.data || devRes.data;
+      const rawList = Array.isArray(rawData?.products?.data)
+        ? rawData.products.data
+        : Array.isArray(rawData?.products)
+        ? rawData.products
+        : Array.isArray(rawData?.data)
+        ? rawData.data
+        : (Array.isArray(rawData) ? rawData : []);
+
+      const sanitizedDevName = sanitizeText(deviceCategory.name) || "Device";
+      const devContext = { id: deviceCategory.id, slug: deviceCategory.slug, name: sanitizedDevName };
+
+      const devProducts: SanitizedProduct[] = rawList
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((p: any) => p && (p.status === undefined || p.status === 1 || p.status === "1") && !/ieet/i.test(p.name || p.slug || ""))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((p: any) => normalizeProduct(p, devContext))
+        .filter((p: SanitizedProduct) => p.inStock);
+
+      return {
+        cat: {
+          id: deviceCategory.id,
+          name: sanitizedDevName,
+          slug: deviceCategory.slug,
+          productCount: devProducts.length,
+        },
+        products: devProducts,
+      };
+    } catch {
+      return { cat: null, products: [] };
+    }
+  })();
+
+  const results = await Promise.all([...subCatPromises, devicePromise]);
 
   for (const r of results) {
     if (r.cat && r.products.length > 0) {
@@ -442,16 +504,16 @@ export async function getFunnelCatalog(): Promise<FunnelCatalogData> {
         slug: subInfo.slug,
         name: sanitizeText(subInfo.name),
       });
-      if (!categoryProductsMap.has(normalized.id)) {
+      if (normalized.inStock && !categoryProductsMap.has(normalized.id)) {
         categoryProductsMap.set(normalized.id, normalized);
       }
     }
   }
 
-  // Sort subcategories by productCount descending (e.g. Flyto (47), D-Breath (12), Voltbar (3), IEET (2))
+  // Sort subcategories by productCount descending (e.g. Flyto (46), D-Breath (12), Device (4), Voltbar (3))
   activeCategories.sort((a, b) => b.productCount - a.productCount);
 
-  const allProducts = Array.from(categoryProductsMap.values());
+  const allProducts = Array.from(categoryProductsMap.values()).filter((p) => p.inStock);
 
   return {
     products: allProducts,
